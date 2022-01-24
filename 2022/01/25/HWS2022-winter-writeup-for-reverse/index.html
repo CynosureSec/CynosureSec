@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cynosure.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="HWS2022 winter writeupHWS2022 硬件冬令营逆向部分 writeup逆向部分全是 vm 题目，做起来很肝，当然也学到了很多">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HWS2022 winter writeup for reverse">
+<meta property="og:url" content="http://cynosure.github.io/Cynosure.github.io/2022/01/25/HWS2022-winter-writeup-for-reverse/index.html">
+<meta property="og:site_name" content="Cynosure&#39;s Blog">
+<meta property="og:description" content="HWS2022 winter writeupHWS2022 硬件冬令营逆向部分 writeup逆向部分全是 vm 题目，做起来很肝，当然也学到了很多">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-01-24T17:22:04.000Z">
+<meta property="article:modified_time" content="2022-01-24T17:24:35.309Z">
+<meta property="article:author" content="Cynosure">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="Reverse">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://cynosure.github.io/Cynosure.github.io/2022/01/25/HWS2022-winter-writeup-for-reverse/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>HWS2022 winter writeup for reverse | Cynosure's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Cynosure's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>links</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://cynosure.github.io/Cynosure.github.io/2022/01/25/HWS2022-winter-writeup-for-reverse/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Cynosure">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cynosure's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HWS2022 winter writeup for reverse
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-01-25 01:22:04 / Modified: 01:24:35" itemprop="dateCreated datePublished" datetime="2022-01-25T01:22:04+08:00">2022-01-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="HWS2022-winter-writeup"><a href="#HWS2022-winter-writeup" class="headerlink" title="HWS2022 winter writeup"></a>HWS2022 winter writeup</h1><p>HWS2022 硬件冬令营逆向部分 writeup<br>逆向部分全是 vm 题目，做起来很肝，当然也学到了很多</p>
+<span id="more"></span>
+
+
+<h2 id="1-Reverse"><a href="#1-Reverse" class="headerlink" title="1. Reverse"></a>1. Reverse</h2><h3 id="1-1-EasyVM"><a href="#1-1-EasyVM" class="headerlink" title="1.1. EasyVM"></a>1.1. EasyVM</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line">arr = [<span class="number">0</span>, <span class="number">190</span>, <span class="number">54</span>, <span class="number">172</span>, <span class="number">39</span>, <span class="number">153</span>, <span class="number">79</span>, <span class="number">222</span>, <span class="number">68</span>, <span class="number">238</span>, <span class="number">95</span>, <span class="number">218</span>, <span class="number">11</span>, <span class="number">181</span>, <span class="number">23</span>, <span class="number">184</span>, <span class="number">104</span>, <span class="number">194</span>, <span class="number">78</span>, <span class="number">156</span>, <span class="number">74</span>, <span class="number">225</span>, <span class="number">67</span>, <span class="number">240</span>, <span class="number">34</span>, <span class="number">138</span>, <span class="number">59</span>, <span class="number">136</span>, <span class="number">91</span>, <span class="number">229</span>, <span class="number">84</span>, <span class="number">255</span>, <span class="number">104</span>, <span class="number">213</span>, <span class="number">103</span>, <span class="number">212</span>, <span class="number">6</span>, <span class="number">173</span>, <span class="number">11</span>, <span class="number">216</span>, <span class="number">80</span>, <span class="number">249</span>, <span class="number">88</span>, <span class="number">224</span>, <span class="number">111</span>, <span class="number">197</span>, <span class="number">74</span>, <span class="number">253</span>, <span class="number">47</span>, <span class="number">132</span>, <span class="number">54</span>, <span class="number">133</span>, <span class="number">82</span>, <span class="number">251</span>, <span class="number">115</span>, <span class="number">215</span>, <span class="number">13</span>, <span class="number">227</span>, <span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">s = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="built_in">len</span>(arr)):</span><br><span class="line">    <span class="comment"># print(chr(arr[i] ^ 0xee ^ arr[i - 1]), end = &quot;&quot;)</span></span><br><span class="line">    s += <span class="built_in">chr</span>(arr[i] ^ <span class="number">0xee</span> ^ arr[i - <span class="number">1</span>])</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">len</span>(s))</span><br><span class="line">t_s = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(s) - <span class="number">2</span>, <span class="number">4</span>):</span><br><span class="line">    t_s += <span class="built_in">chr</span>(<span class="built_in">ord</span>(s[i]) ^ <span class="number">0xa</span>)</span><br><span class="line">    t_s += <span class="built_in">chr</span>(<span class="built_in">ord</span>(s[i + <span class="number">1</span>]) ^ <span class="number">0xb</span>)</span><br><span class="line">    t_s += <span class="built_in">chr</span>(<span class="built_in">ord</span>(s[i + <span class="number">2</span>]) ^ <span class="number">0xc</span>)</span><br><span class="line">    t_s += <span class="built_in">chr</span>(<span class="built_in">ord</span>(s[i + <span class="number">3</span>]) ^ <span class="number">0xd</span>)</span><br><span class="line"><span class="comment"># print(t_s)</span></span><br><span class="line"><span class="built_in">print</span>(base64.b64decode(t_s))</span><br><span class="line"><span class="comment"># b&#x27;flag&#123;2586dc76-98d5-44e2-ad58-d06e6559d82a&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2-BabyVM"><a href="#1-2-BabyVM" class="headerlink" title="1.2. BabyVM"></a>1.2. BabyVM</h3><p>存在很多花指令，根据花指令特征先编写脚本去除花指令</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ida_bytes</span><br><span class="line">ea = <span class="number">0x41304d</span></span><br><span class="line">start = <span class="number">0x412cc0</span></span><br><span class="line">end = <span class="number">0x413991</span></span><br><span class="line"><span class="keyword">for</span> addr <span class="keyword">in</span> <span class="built_in">range</span>(start, end):</span><br><span class="line">    con = ida_bytes.get_bytes(addr,<span class="number">5</span>)</span><br><span class="line">    <span class="keyword">if</span> con == <span class="string">b&#x27;\x74\x03\x75\x01\xe8&#x27;</span>:</span><br><span class="line">        con = <span class="string">b&#x27;\xEB\x03\x90\x90\x90&#x27;</span></span><br><span class="line">        ida_bytes.patch_bytes(addr, con)</span><br></pre></td></tr></table></figure>
+
+<p>虚拟机的指令是以一个结构体形式储存，结构体形式如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">frame</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 opcode;</span><br><span class="line">  <span class="keyword">unsigned</span> __int64 arg_1;</span><br><span class="line">  <span class="keyword">unsigned</span> __int64 arg_2;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>0x7DE000</code> 至 <code>0x7DF158</code> 部分是储存指令的内存区域，在这个地方创建结构体数组，可以使我们更加清晰的分析虚拟机指令的组成</p>
+<p>通过动态调试我们可以知道 <code>0x7DE000</code> 到 <code>0x7DEA50</code> 部分的 opcode 是用来输出提示信息，以及输入，对我们输入部分进行储存的指令</p>
+<p><code>0x7DEA68</code> 至 <code>0x7DF4E8</code> 指令部分，是进行输入加密和 check 以及结果输出的指令部分，这里我们先利用 IDAPython 提取出对应的指令序列 然后根据逆向出来的指令操作，打印出这部分指令的伪代码 ，打印脚本如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">con = [[<span class="number">6</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">26</span>, <span class="number">0</span>, <span class="number">125</span>], [<span class="number">28</span>, <span class="number">18</span>, <span class="number">18446744073709551615</span>], [<span class="number">1</span>, <span class="number">0</span>, <span class="number">119</span>], [<span class="number">1</span>, <span class="number">1</span>, <span class="number">114</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">111</span>], [<span class="number">1</span>, <span class="number">3</span>, <span class="number">110</span>], [<span class="number">1</span>, <span class="number">6</span>, <span class="number">103</span>], [<span class="number">1</span>, <span class="number">7</span>, <span class="number">33</span>], [<span class="number">24</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">1</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">2</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">3</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">6</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">7</span>, <span class="number">18446744073709551615</span>], [<span class="number">1</span>, <span class="number">0</span>, <span class="number">10</span>], [<span class="number">24</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">25</span>, <span class="number">18446744073709551615</span>, <span class="number">18446744073709551615</span>], [<span class="number">1</span>, <span class="number">8</span>, <span class="number">256</span>], [<span class="number">26</span>, <span class="number">8</span>, <span class="number">225</span>], [<span class="number">30</span>, <span class="number">25</span>, <span class="number">18446744073709551615</span>], [<span class="number">6</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">4</span>, <span class="number">8</span>, <span class="number">0</span>], [<span class="number">9</span>, <span class="number">8</span>, <span class="number">1</span>], [<span class="number">29</span>, <span class="number">19</span>, <span class="number">18446744073709551615</span>], [<span class="number">6</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">26</span>, <span class="number">0</span>, <span class="number">123</span>], [<span class="number">31</span>, <span class="number">3</span>, <span class="number">18446744073709551615</span>], [<span class="number">6</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">26</span>, <span class="number">0</span>, <span class="number">103</span>], [<span class="number">31</span>, <span class="number">3</span>, <span class="number">18446744073709551615</span>], [<span class="number">6</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">26</span>, <span class="number">0</span>, <span class="number">97</span>], [<span class="number">31</span>, <span class="number">3</span>, <span class="number">18446744073709551615</span>], [<span class="number">6</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">26</span>, <span class="number">0</span>, <span class="number">108</span>], [<span class="number">31</span>, <span class="number">3</span>, <span class="number">18446744073709551615</span>], [<span class="number">6</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">26</span>, <span class="number">0</span>, <span class="number">102</span>], [<span class="number">31</span>, <span class="number">3</span>, <span class="number">18446744073709551615</span>], [<span class="number">18</span>, <span class="number">9</span>, <span class="number">9</span>], [<span class="number">1</span>, <span class="number">10</span>, <span class="number">225</span>], [<span class="number">3</span>, <span class="number">7</span>, <span class="number">9</span>], [<span class="number">3</span>, <span class="number">6</span>, <span class="number">10</span>], [<span class="number">17</span>, <span class="number">6</span>, <span class="number">66</span>], [<span class="number">13</span>, <span class="number">6</span>, <span class="number">2</span>], [<span class="number">27</span>, <span class="number">6</span>, <span class="number">7</span>], [<span class="number">31</span>, <span class="number">3</span>, <span class="number">18446744073709551615</span>], [<span class="number">7</span>, <span class="number">9</span>, <span class="number">1</span>], [<span class="number">7</span>, <span class="number">10</span>, <span class="number">1</span>], [<span class="number">26</span>, <span class="number">9</span>, <span class="number">32</span>], [<span class="number">30</span>, <span class="number">42</span>, <span class="number">18446744073709551615</span>], [<span class="number">1</span>, <span class="number">0</span>, <span class="number">99</span>], [<span class="number">1</span>, <span class="number">1</span>, <span class="number">111</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">114</span>], [<span class="number">1</span>, <span class="number">3</span>, <span class="number">114</span>], [<span class="number">1</span>, <span class="number">6</span>, <span class="number">101</span>], [<span class="number">1</span>, <span class="number">7</span>, <span class="number">99</span>], [<span class="number">24</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">1</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">2</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">3</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">6</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">7</span>, <span class="number">18446744073709551615</span>], [<span class="number">1</span>, <span class="number">0</span>, <span class="number">116</span>], [<span class="number">1</span>, <span class="number">1</span>, <span class="number">108</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">121</span>], [<span class="number">1</span>, <span class="number">3</span>, <span class="number">33</span>], [<span class="number">1</span>, <span class="number">6</span>, <span class="number">10</span>], [<span class="number">24</span>, <span class="number">0</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">1</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">2</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">3</span>, <span class="number">18446744073709551615</span>], [<span class="number">24</span>, <span class="number">6</span>, <span class="number">18446744073709551615</span>], [<span class="number">25</span>, <span class="number">18446744073709551615</span>, <span class="number">18446744073709551615</span>]]</span><br><span class="line">arr = [<span class="number">0</span>] * <span class="number">32</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> con:</span><br><span class="line">    <span class="built_in">print</span>(i)</span><br><span class="line">    t = i[<span class="number">0</span>]</span><br><span class="line">    arr[t] = <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(arr)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(arr)):</span><br><span class="line">    <span class="keyword">if</span> arr[i] == <span class="number">1</span>:</span><br><span class="line">        <span class="built_in">print</span>(i)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(con)):</span><br><span class="line">    tmp = con[i]</span><br><span class="line">    arg_1 = tmp[<span class="number">1</span>]</span><br><span class="line">    arg_2 = tmp[<span class="number">2</span>]</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;__<span class="subst">&#123;i&#125;</span> : &quot;</span>, end = <span class="string">&quot;&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">1</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;arr[<span class="subst">&#123;arg_1&#125;</span>] = <span class="subst">&#123;arg_2&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">3</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;arr[<span class="subst">&#123;arg_1&#125;</span>] = 7DF[arr[<span class="subst">&#123;arg_2&#125;</span>]]&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">4</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;7DF[arr[<span class="subst">&#123;arg_1&#125;</span>]] = arr[<span class="subst">&#123;arg_2&#125;</span>]&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">6</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;arr[<span class="subst">&#123;arg_1&#125;</span>] = memory[arr[4]] --- arr[4]--&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">7</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;arr[<span class="subst">&#123;arg_1&#125;</span>] += <span class="subst">&#123;arg_2&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">9</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;arr[<span class="subst">&#123;arg_1&#125;</span>] = arr[<span class="subst">&#123;arg_1&#125;</span>] - <span class="subst">&#123;arg_2&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">13</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;arr[<span class="subst">&#123;arg_1&#125;</span>] = arr[<span class="subst">&#123;arg_1&#125;</span>] &lt;&lt; <span class="subst">&#123;arg_2&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">17</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;arr[<span class="subst">&#123;arg_1&#125;</span>] = arr[<span class="subst">&#123;arg_1&#125;</span>] ^ <span class="subst">&#123;arg_2&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">18</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;arr[<span class="subst">&#123;arg_1&#125;</span>] ^ arr[<span class="subst">&#123;arg_2&#125;</span>]&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">24</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;put(arr[<span class="subst">&#123;arg_1&#125;</span>])&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">25</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;exit&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">26</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;mark_p = arr[<span class="subst">&#123;arg_1&#125;</span>] == <span class="subst">&#123;arg_2&#125;</span> --- *(mark_p + 1) = arr[<span class="subst">&#123;arg_1&#125;</span>] &lt; <span class="subst">&#123;arg_2&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">27</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;mark_p = arr[<span class="subst">&#123;arg_1&#125;</span>] == arr[<span class="subst">&#123;arg_2&#125;</span>] --- *(mark_p + 1) = arr[<span class="subst">&#123;arg_1&#125;</span>] &lt; arr[arg_2]&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">28</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;mark_p == 1 --- jmp <span class="subst">&#123;arg_1&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">29</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;jmp <span class="subst">&#123;arg_1&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">30</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;*(mark_p + 1) == 1 --- jmp <span class="subst">&#123;arg_1&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> tmp[<span class="number">0</span>] == <span class="number">31</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;mark_p == 0 jmp <span class="subst">&#123;arg_1&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>指令的伪代码如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">__0 : arr[0] = memory[arr[4]] --- arr[4]--</span><br><span class="line">__1 : mark_p = arr[0] == 125 --- *(mark_p + 1) = arr[0] &lt; 125</span><br><span class="line">__2 : mark_p == 1 --- jmp 18</span><br><span class="line">__3 : arr[0] = 119</span><br><span class="line">__4 : arr[1] = 114</span><br><span class="line">__5 : arr[2] = 111</span><br><span class="line">__6 : arr[3] = 110</span><br><span class="line">__7 : arr[6] = 103</span><br><span class="line">__8 : arr[7] = 33</span><br><span class="line">__9 : put(arr[0])</span><br><span class="line">__10 : put(arr[1])</span><br><span class="line">__11 : put(arr[2])</span><br><span class="line">__12 : put(arr[3])</span><br><span class="line">__13 : put(arr[6])</span><br><span class="line">__14 : put(arr[7])</span><br><span class="line">__15 : arr[0] = 10</span><br><span class="line">__16 : put(arr[0])</span><br><span class="line">__17 : exit</span><br><span class="line">__18 : arr[8] = 256</span><br><span class="line">__19 : mark_p = arr[8] == 225 --- *(mark_p + 1) = arr[8] &lt; 225</span><br><span class="line">__20 : *(mark_p + 1) == 1 --- jmp 25</span><br><span class="line">__21 : arr[0] = memory[arr[4]] --- arr[4]--</span><br><span class="line">__22 : 7DF[arr[8]] = arr[0]</span><br><span class="line">__23 : arr[8] = arr[8] - 1</span><br><span class="line">__24 : jmp 19</span><br><span class="line">__25 : arr[0] = memory[arr[4]] --- arr[4]--</span><br><span class="line">__26 : mark_p = arr[0] == 123 --- *(mark_p + 1) = arr[0] &lt; 123</span><br><span class="line">__27 : mark_p == 0 jmp 3</span><br><span class="line">__28 : arr[0] = memory[arr[4]] --- arr[4]--</span><br><span class="line">__29 : mark_p = arr[0] == 103 --- *(mark_p + 1) = arr[0] &lt; 103</span><br><span class="line">__30 : mark_p == 0 jmp 3</span><br><span class="line">__31 : arr[0] = memory[arr[4]] --- arr[4]--</span><br><span class="line">__32 : mark_p = arr[0] == 97 --- *(mark_p + 1) = arr[0] &lt; 97</span><br><span class="line">__33 : mark_p == 0 jmp 3</span><br><span class="line">__34 : arr[0] = memory[arr[4]] --- arr[4]--</span><br><span class="line">__35 : mark_p = arr[0] == 108 --- *(mark_p + 1) = arr[0] &lt; 108</span><br><span class="line">__36 : mark_p == 0 jmp 3</span><br><span class="line">__37 : arr[0] = memory[arr[4]] --- arr[4]--</span><br><span class="line">__38 : mark_p = arr[0] == 102 --- *(mark_p + 1) = arr[0] &lt; 102</span><br><span class="line">__39 : mark_p == 0 jmp 3</span><br><span class="line">__40 : arr[9] ^ arr[9]</span><br><span class="line">__41 : arr[10] = 225</span><br><span class="line">__42 : arr[7] = 7DF[arr[9]]</span><br><span class="line">__43 : arr[6] = 7DF[arr[10]]</span><br><span class="line">__44 : arr[6] = arr[6] ^ 66</span><br><span class="line">__45 : arr[6] = arr[6] &lt;&lt; 2</span><br><span class="line">__46 : mark_p = arr[6] == arr[7] --- *(mark_p + 1) = arr[6] &lt; arr[arg_2]</span><br><span class="line">__47 : mark_p == 0 jmp 3</span><br><span class="line">__48 : arr[9] += 1</span><br><span class="line">__49 : arr[10] += 1</span><br><span class="line">__50 : mark_p = arr[9] == 32 --- *(mark_p + 1) = arr[9] &lt; 32</span><br><span class="line">__51 : *(mark_p + 1) == 1 --- jmp 42</span><br><span class="line">__52 : arr[0] = 99</span><br><span class="line">__53 : arr[1] = 111</span><br><span class="line">__54 : arr[2] = 114</span><br><span class="line">__55 : arr[3] = 114</span><br><span class="line">__56 : arr[6] = 101</span><br><span class="line">__57 : arr[7] = 99</span><br><span class="line">__58 : put(arr[0])</span><br><span class="line">__59 : put(arr[1])</span><br><span class="line">__60 : put(arr[2])</span><br><span class="line">__61 : put(arr[3])</span><br><span class="line">__62 : put(arr[6])</span><br><span class="line">__63 : put(arr[7])</span><br><span class="line">__64 : arr[0] = 116</span><br><span class="line">__65 : arr[1] = 108</span><br><span class="line">__66 : arr[2] = 121</span><br><span class="line">__67 : arr[3] = 33</span><br><span class="line">__68 : arr[6] = 10</span><br><span class="line">__69 : put(arr[0])</span><br><span class="line">__70 : put(arr[1])</span><br><span class="line">__71 : put(arr[2])</span><br><span class="line">__72 : put(arr[3])</span><br><span class="line">__73 : put(arr[6])</span><br><span class="line">__74 : exit</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通过分析这些伪代码指令 和动态调试，知道了就只是做了一个异或 66 再左移 2 位的操作，从内存中提取出加密后的指令序列，编写代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">arr = [<span class="number">156</span>, <span class="number">448</span>, <span class="number">472</span>, <span class="number">468</span>, <span class="number">468</span>, <span class="number">488</span>, <span class="number">456</span>, <span class="number">152</span>, <span class="number">456</span>, <span class="number">448</span>, <span class="number">492</span>, <span class="number">140</span>, <span class="number">468</span>, <span class="number">140</span>, <span class="number">492</span>, <span class="number">492</span>, <span class="number">448</span>, <span class="number">448</span>, <span class="number">472</span>, <span class="number">468</span>, <span class="number">156</span>, <span class="number">464</span>, <span class="number">464</span>, <span class="number">464</span>, <span class="number">468</span>, <span class="number">488</span>, <span class="number">464</span>, <span class="number">492</span>, <span class="number">456</span>, <span class="number">456</span>, <span class="number">488</span>, <span class="number">140</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> arr:</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">chr</span>((i &gt;&gt; <span class="number">2</span>) ^ <span class="number">66</span>), end = <span class="string">&quot;&quot;</span>)</span><br><span class="line"><span class="comment"># e247780d029a7a992247e6667869008a</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-babyre"><a href="#1-3-babyre" class="headerlink" title="1.3. babyre"></a>1.3. babyre</h3><p>LLVM 还有控制流平坦化，先尝试网上通用的 deflat 脚本，发现会报错，似乎是有一些 汇编指令 angr 没有办法去模拟</p>
+<p>这可就很难受了</p>
+<p>(<del>呜呜呜</del>)</p>
+<p>观察代码块后，发现程序中还是由一些花指令，先去除花指令再说 然后就只能手动去分析流程图中的真实块</p>
+<p>然后对每一个真实块用注释的形式去给他一个编号，通过动态调试以及静态分析的方法去弄清除每一个真实块的代码行为</p>
+<p>将所有的真实块编号标记好之后我们可以将每一个真实块看作 一行代码 (<del>伪汇编代码</del>)</p>
+<p>列出程序逻辑如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">__step 0: input_func</span><br><span class="line">__step 1: len(input) != 32  ---&gt; exit</span><br><span class="line">__step 2: key_1 = 0 --- key_2 = 0 --- key_3 = 15 copy_input = input # 将 input 内容复制遍</span><br><span class="line">__step 3: key_1 &gt;= 8 ---&gt; goto step_6</span><br><span class="line">__step 4: key_2 = copy_input[key_1] ^ key_2 --- key_3 = ~copy_input[key_1]</span><br><span class="line">__step 5: ++key_1 --- goto step_3</span><br><span class="line"></span><br><span class="line">__step 6: var_1 = 0</span><br><span class="line">__step 7: var_1 &gt;= 8 ---&gt; goto step_10</span><br><span class="line">__step 8: copy_input[var_1] = copy_input[var_1] ^ key_2 --- key_3 = var_1</span><br><span class="line">__step 9: ++var_1 --- goto step_7</span><br><span class="line"></span><br><span class="line">__step 10: mark_var = 0 --- var_2 = 0</span><br><span class="line">__step 11: var_2 &gt;= 32 goto step_14</span><br><span class="line">__step 12: mark_var = (char)(copy_input[var_2]) ^ mark_var</span><br><span class="line">__step 13: ++var_2 goto step_11</span><br><span class="line"></span><br><span class="line">__step 14: new_mem = (const char *)malloc(0x2Du);</span><br><span class="line">__step 15: *((_BYTE *)new_mem + 44) = 0; --- key_3 = 15 --- var_3 = 0 --- var_4 = 0</span><br><span class="line">__step 16: var_4 &gt;= 33 goto step_23</span><br><span class="line">__step 17: new_mem[var_3:var_3 + 4] = base64(var_4:var_4 + 3) --- var_3 += 4 --- v21 = var_4 + 3</span><br><span class="line">__step 18: v21 &gt; 0x21 goto step_21</span><br><span class="line"></span><br><span class="line">(((((((((((((((((( index ))))))))))))))))))</span><br><span class="line">__step 19: copy_input[v21] ^= new_mem[var_3] --- copy_input[v21 + 1] ^= new_mem[var_3 + 1] --- copy_input[v22 + 2] ^= new_mem[var_3 + 2]</span><br><span class="line"></span><br><span class="line">__step 20: v21 += 3 goto step_18</span><br><span class="line">__step 21: goto 22</span><br><span class="line">__step 22: var_4 += 3 goto step_16</span><br><span class="line">__step 23: check function</span><br><span class="line">__step 24:</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>step_19</code> 异或的不是他们 <code>base</code> 加密后的值 而是他们的下标</p>
+<p>程序流程分析出来，先编写一遍对应的加密代码，根据加密代码再逆向整个过程</p>
+<p>加密代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> libnum</span><br><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line">table = <span class="string">&quot;QVEJAfHmUYjBac+u8Ph5n9Od16FrICL/X0GvtM4qk7T2z3wNSsyoebilxWKgZpRD&quot;</span></span><br><span class="line"><span class="built_in">input</span> = <span class="string">b&quot;abcdefghijklmnopqrstuvwxyz123456&quot;</span></span><br><span class="line">copy_input = copy.copy(<span class="built_in">input</span>)</span><br><span class="line"></span><br><span class="line">key_2 = <span class="number">0</span></span><br><span class="line">key_3 = <span class="number">15</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">32</span>, <span class="number">4</span>):</span><br><span class="line">    key_2 = libnum.s2n(copy_input[i:i+<span class="number">4</span>][::-<span class="number">1</span>]) ^ key_2</span><br><span class="line">    key_3 = ~libnum.s2n(copy_input[i:i+<span class="number">4</span>][::-<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">tmp = <span class="string">b&quot;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">32</span>, <span class="number">4</span>):</span><br><span class="line">    tmp += libnum.n2s(libnum.s2n(copy_input[i:i+<span class="number">4</span>][::-<span class="number">1</span>]) ^ key_2)[::-<span class="number">1</span>]</span><br><span class="line">    key_3 = i // <span class="number">4</span></span><br><span class="line"></span><br><span class="line">mark_var = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span> ,<span class="number">32</span>):</span><br><span class="line">    mark_var = libnum.s2n(tmp[i:i +<span class="number">1</span>]) ^ mark_var</span><br><span class="line"></span><br><span class="line">var_3 = <span class="number">0</span></span><br><span class="line">tmp += <span class="string">b&#x27;\x00&#x27;</span> * <span class="number">4</span></span><br><span class="line">temp = [<span class="number">0</span>] * <span class="number">60</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(tmp)):</span><br><span class="line">    temp[i] = <span class="built_in">ord</span>(tmp[i:i+<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">temp = [<span class="number">107</span>, <span class="number">101</span>, <span class="number">96</span>, <span class="number">102</span>, <span class="number">104</span>, <span class="number">53</span>, <span class="number">97</span>, <span class="number">53</span>, <span class="number">110</span>, <span class="number">48</span>, <span class="number">97</span>, <span class="number">49</span>, <span class="number">57</span>, <span class="number">96</span>, <span class="number">61</span>, <span class="number">99</span>, <span class="number">53</span>, <span class="number">101</span>, <span class="number">102</span>, <span class="number">50</span>, <span class="number">108</span>, <span class="number">48</span>, <span class="number">99</span>, <span class="number">48</span>, <span class="number">107</span>, <span class="number">96</span>, <span class="number">96</span>, <span class="number">48</span>, <span class="number">107</span>, <span class="number">51</span>, <span class="number">61</span>, <span class="number">96</span>, <span class="number">93</span>]</span><br><span class="line">temp += [<span class="number">0</span>] * <span class="number">34</span></span><br><span class="line">base64ed = [<span class="number">0</span>] * <span class="number">60</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">32</span>, <span class="number">3</span>):</span><br><span class="line">    c1 = temp[i]</span><br><span class="line">    c2 = temp[i + <span class="number">1</span>]</span><br><span class="line">    c3 = temp[i + <span class="number">2</span>]</span><br><span class="line">    a1 = c1 &gt;&gt; <span class="number">2</span></span><br><span class="line">    a2 = ((c1 &amp; <span class="number">0x3</span>) &lt;&lt; <span class="number">4</span>) + (c2 &gt;&gt; <span class="number">4</span>)</span><br><span class="line">    a3 = ((c2 &amp; <span class="number">0xf</span>) &lt;&lt; <span class="number">2</span>) + (c3 &gt;&gt; <span class="number">6</span>)</span><br><span class="line">    a4 = (c3 &amp;<span class="number">0x3f</span>)</span><br><span class="line">    base64ed[var_3] = <span class="built_in">ord</span>(table[a1])</span><br><span class="line">    base64ed[var_3 + <span class="number">1</span>] = <span class="built_in">ord</span>(table[a2])</span><br><span class="line">    base64ed[var_3 + <span class="number">2</span>] = <span class="built_in">ord</span>(table[a3])</span><br><span class="line">    base64ed[var_3 + <span class="number">3</span>] = <span class="built_in">ord</span>(table[a4])</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(i + <span class="number">3</span>, <span class="number">32</span>, <span class="number">3</span>):</span><br><span class="line">        temp[j] ^= a1</span><br><span class="line">        temp[j + <span class="number">1</span>] ^= a2</span><br><span class="line">        temp[j + <span class="number">2</span>] ^= a3</span><br><span class="line">    <span class="built_in">print</span>(temp[<span class="number">0</span>:<span class="number">32</span>])</span><br><span class="line">    var_3 += <span class="number">4</span></span><br><span class="line"><span class="built_in">print</span>(base64ed[<span class="number">0</span>:<span class="number">44</span>])</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> base64ed:</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">chr</span>(i), end = <span class="string">&quot;&quot;</span>)</span><br><span class="line"><span class="comment"># Fi9X/fxX6Q6JBfUfBM1V/y6V6PcPjMaQLl9IuttFuH68</span></span><br></pre></td></tr></table></figure>
+
+<p>根据加密代码 再编写解题代码，即可得到 <code>flag</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> libnum</span><br><span class="line">s = <span class="string">&quot;Fi9X/fxX6Q6JBfUfBM1V/y6V6PcPjMaQLl9IuttFuH68&quot;</span></span><br><span class="line"><span class="comment"># s = &quot;Fi9X&quot;</span></span><br><span class="line">t = <span class="string">&quot;QVEJAfHmUYjBac+u8Ph5n9Od16FrICL/X0GvtM4qk7T2z3wNSsyoebilxWKgZpRD&quot;</span></span><br><span class="line">enc = []</span><br><span class="line">table = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">    enc.append(<span class="built_in">ord</span>(i))</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> t:</span><br><span class="line">    table.append(<span class="built_in">ord</span>(i))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">xor_table = []</span><br><span class="line">temp = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(enc), <span class="number">4</span>):</span><br><span class="line">    a1 = table.index(enc[i])</span><br><span class="line">    a2 = table.index(enc[i + <span class="number">1</span>])</span><br><span class="line">    a3 = table.index(enc[i + <span class="number">2</span>])</span><br><span class="line">    a4 = table.index(enc[i + <span class="number">3</span>])</span><br><span class="line">    c1 = (a1 &lt;&lt; <span class="number">2</span>) + (a2&gt;&gt; <span class="number">4</span>)</span><br><span class="line">    c2 = ((a2 &amp; <span class="number">0b1111</span>) &lt;&lt; <span class="number">4</span>) + (a3 &gt;&gt; <span class="number">2</span>)</span><br><span class="line">    c3 = ((a3 &amp; <span class="number">0b11</span>) &lt;&lt; <span class="number">6</span>) + a4</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(xor_table), <span class="number">3</span>):</span><br><span class="line">        c1 ^= xor_table[j]</span><br><span class="line">        c2 ^= xor_table[j + <span class="number">1</span>]</span><br><span class="line">        c3 ^= xor_table[j + <span class="number">2</span>]</span><br><span class="line">    xor_table.append(a1)</span><br><span class="line">    xor_table.append(a2)</span><br><span class="line">    xor_table.append(a3)</span><br><span class="line">    temp.append(c1)</span><br><span class="line">    temp.append(c2)</span><br><span class="line">    temp.append(c3)</span><br><span class="line"><span class="comment"># print(temp)</span></span><br><span class="line"></span><br><span class="line">res = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> temp:</span><br><span class="line">    res += <span class="built_in">chr</span>(i)</span><br><span class="line"><span class="comment"># print(res)</span></span><br><span class="line"></span><br><span class="line">arr = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(res), <span class="number">4</span>):</span><br><span class="line">    arr.append(libnum.s2n(res[i:i+<span class="number">4</span>][::-<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line">k = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span> ,<span class="number">8</span>):</span><br><span class="line">    k ^= arr[i]</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span> ,<span class="number">8</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">str</span>(libnum.n2s(arr[i] ^ k)[::-<span class="number">1</span>], <span class="string">&#x27;utf-8&#x27;</span>), end = <span class="string">&quot;&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># fce5e3dfc6db4f808ccaa6fcffecf583</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="2-Misc"><a href="#2-Misc" class="headerlink" title="2. Misc"></a>2. Misc</h2><p>搜到这两篇文章</p>
+<p>Higaisa APT最新LNK攻击<br><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/network/241414.html">https://www.freebuf.com/articles/network/241414.html</a></p>
+<p>使用Winrm.vbs绕过应用白名单执行任意未签名代码的分析<br><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/178339.html">https://www.freebuf.com/articles/system/178339.html</a></p>
+<p>根据文章中说的方法提取出 xls 脚本 如下</p>
+<figure class="highlight xsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&#x27;1.0&#x27;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">stylesheet</span></span></span><br><span class="line"><span class="tag"><span class="attr">xmlns</span>=<span class="string">&quot;http://www.w3.org/1999/XSL/Transform&quot;</span> <span class="attr">xmlns:ms</span>=<span class="string">&quot;urn:schemas-microsoft-com:xslt&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">xmlns:user</span>=<span class="string">&quot;placeholder&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">output</span> <span class="attr">method</span>=<span class="string">&quot;text&quot;</span>/&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">ms:script</span> <span class="attr">implements-prefix</span>=<span class="string">&quot;user&quot;</span> <span class="attr">language</span>=<span class="string">&quot;VBScript&quot;</span>&gt;</span></span><br><span class="line"> &lt;![CDATA[</span><br><span class="line"> rBOH7OLTCVxzkH=HrtvBsRh3gNUbe(&quot;676d60667a64333665326564333665326564333665326536653265643336656564333665327c&quot;):execute(rBOH7OLTCVxzkH):function HrtvBsRh3gNUbe(bhhz6HalbOkrki):for rBOH7OLTCVxzkH=1 to len(bhhz6HalbOkrki)step 2:HrtvBsRh3gNUbe=HrtvBsRh3gNUbe&amp;chr(asc(chr(&quot;&amp;h&quot;&amp;mid(bhhz6HalbOkrki,rBOH7OLTCVxzkH,2)))xor 1):next:end function:</span><br><span class="line"> ]]&gt; <span class="tag">&lt;/<span class="name">ms:script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">stylesheet</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>将得到的 <code>676d60667a64333665326564333665326564333665326536653265643336656564333665327c</code> 每两个字符切割为一个 16 进制数据，然后再异或 1 输出，即可得到结果</p>
+<p>脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">arr = [<span class="number">0x67</span>, <span class="number">0x6d</span>, <span class="number">0x60</span>, <span class="number">0x66</span>, <span class="number">0x7a</span>, <span class="number">0x64</span>, <span class="number">0x33</span>, <span class="number">0x36</span>, <span class="number">0x65</span>, <span class="number">0x32</span>, <span class="number">0x65</span>, <span class="number">0x64</span>, <span class="number">0x33</span>, <span class="number">0x36</span>, <span class="number">0x65</span>, <span class="number">0x32</span>, <span class="number">0x65</span>, <span class="number">0x64</span>, <span class="number">0x33</span>, <span class="number">0x36</span>, <span class="number">0x65</span>, <span class="number">0x32</span>, <span class="number">0x65</span>, <span class="number">0x36</span>, <span class="number">0x65</span>, <span class="number">0x32</span>, <span class="number">0x65</span>, <span class="number">0x64</span>, <span class="number">0x33</span>, <span class="number">0x36</span>, <span class="number">0x65</span>, <span class="number">0x65</span>, <span class="number">0x64</span>, <span class="number">0x33</span>, <span class="number">0x36</span>, <span class="number">0x65</span>, <span class="number">0x32</span>, <span class="number">0x7c</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> arr:</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">chr</span>(i ^ <span class="number">1</span>), end = <span class="string">&quot;&quot;</span>)</span><br><span class="line"><span class="comment"># flag&#123;e27d3de27d3de27d3d7d3de27dde27d3&#125;</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+              <a href="/tags/Reverse/" rel="tag"># Reverse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/21/CMU-15-213-Lab2-Bomb-Lab/" rel="prev" title="CMU 15-213 Lab2 Bomb Lab">
+      <i class="fa fa-chevron-left"></i> CMU 15-213 Lab2 Bomb Lab
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HWS2022-winter-writeup"><span class="nav-number">1.</span> <span class="nav-text">HWS2022 winter writeup</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Reverse"><span class="nav-number">1.1.</span> <span class="nav-text">1. Reverse</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-EasyVM"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1. EasyVM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-BabyVM"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.2. BabyVM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-babyre"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.3. babyre</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Misc"><span class="nav-number">1.2.</span> <span class="nav-text">2. Misc</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Cynosure</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cynosure</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
