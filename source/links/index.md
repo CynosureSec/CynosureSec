@@ -143,6 +143,15 @@ type: "links"
                   <div class="info">院科协/后端</div>
                </div>
             </div>
+			<div class="card">
+               <img class="ava" src="https://res.cloudinary.com/lu1u/image/upload/v1637574276/blog_img/CTF_cover/lu1u_ikc5ga.jpg" />
+               <div class="card-header">
+                  <div>
+                     <a href="https://lu1u.xyz/">Lu1u</a>
+                  </div>
+                  <div class="info">CTFer/Reverse</div>
+               </div>
+            </div>
          <!--link information end-->
          </div>
       </div>
