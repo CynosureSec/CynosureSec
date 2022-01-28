@@ -217,3 +217,7 @@ http://tdongsi.github.io/blog/2017/04/23/docker-out-of-docker/
 
 Docker Tips : about /var/run/docker.sock
 https://betterprogramming.pub/about-var-run-docker-sock-3bfd276e12fd
+
+**附件**
+
+https://github.com/CynosureSec/Imagebed/blob/main/attachment/Be-a-Docker-Escaper_915f8b3ab4554e86d6258fcb067b91ce.tar.gz

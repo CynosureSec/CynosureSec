@@ -7,7 +7,7 @@ tags:
 
 ![](https://raw.githubusercontent.com/CynosureSec/Imagebed/main/img/20220129004851.png)
 
-15-213 Attack Lab 作题笔记
+15-213 Attack Lab 做题笔记
 
 <!--more-->
 # 题目总览
